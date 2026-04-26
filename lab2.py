@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain.agents import create_agent
 from langchain.messages import HumanMessage
-from langgraph.checkpoint.memory import InMemorySaver
 load_dotenv()
 
 api_key=os.getenv("OPENAI_API_KEY")
@@ -28,10 +27,30 @@ agent = create_agent(
     llm,
     system_prompt=system_prompt  
 )
-res =agent.invoke({
+
+res1 =agent.invoke({
     "message":[
         HumanMessage(content="i have chicken and rice")
     ]
-})
+    },
+    config={"configurable":{
+        "thread_id":"1"
+    }
+    }
+    ) 
+print("\n first respose: \n")
+print(res1["messages"][-1].content)
 
-print(res)
+res2=agent.invoke({
+    "messages":[
+        HumanMessage(content="give me another idea")
+    ]
+    },
+    config={"configurable":{
+        "thread_id":"1"
+    }
+    }
+    ) 
+
+print("\n second respose: \n")
+print(res2["messages"][-1].content)
