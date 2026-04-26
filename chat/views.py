@@ -1,12 +1,14 @@
 from django.shortcuts import render
-from .ai import ask_chef,chat_history
-# Create your views here.
+from .ai import ask_chef
+
 
 def home(request):
-    response = ""
+    result = None
 
     if request.method == "POST":
-        ingredients = request.POST.get("ingredients")
-        response = ask_chef(ingredients)
+        ingredients = request.POST.get("ingredients") 
+        result = ask_chef(ingredients)
 
-    return render(request, "chat.html", {"response": response,"history":chat_history})
+    return render(request, "chat.html", {
+        "result": result
+    })
