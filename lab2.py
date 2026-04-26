@@ -30,7 +30,7 @@ agent = create_agent(
 
 res1 =agent.invoke({
     "message":[
-        HumanMessage(content="i have chicken and rice")
+        HumanMessage(content="i have chicken and rice give hoe can i cook with it")
     ]
     },
     config={"configurable":{
