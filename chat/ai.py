@@ -1,13 +1,19 @@
 import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
+from langchain.agents import create_agent
+from langchain_core.messages import HumanMessage
 from pydantic import BaseModel
 from typing import List
+
+load_dotenv()
+
+api_key = os.getenv("OPENAI_API_KEY")
 
 
 class Ingredient(BaseModel):
     name: str
-    status: str  # available / not available
+    status: str
 
 
 class Meal(BaseModel):
@@ -21,32 +27,52 @@ class Meal(BaseModel):
 class ChefResponse(BaseModel):
     meals: List[Meal]
 
-load_dotenv()
 
 system_prompt = """
-You are a professional chef 👨‍🍳
+You are a professional chef 
 
 Rules:
 - Always analyze ingredients step-by-step
 - Never skip steps
 - Suggest multiple meals
 - Mark ingredients as available or not available
-- Be human-like and friendly
+- Be friendly and human-like
 
-IMPORTANT:
-Return ONLY structured output that matches the schema exactly.
+Return ONLY structured output matching schema.
 """
+
 
 llm = ChatOpenAI(
     model="gpt-4o-mini",
-    api_key=os.getenv("OPENAI_API_KEY"),
-    temperature=0.7
+    temperature=0.7,
+    api_key=api_key
 )
 
-structured_llm = llm.with_structured_output(ChefResponse)
+agent = create_agent(
+    llm,
+    system_prompt=system_prompt,
+    response_format=ChefResponse
+)
 
 
 def ask_chef(user_input):
-    full_input = system_prompt + "\nUser: " + user_input
-    result = structured_llm.invoke(full_input)
-    return result
+    res = agent.invoke(
+        {
+            "messages": [
+                HumanMessage(content=user_input)
+            ]
+        },
+        config={
+            "configurable": {
+                "thread_id": "chef_lab"
+            }
+        }
+    )
+
+
+    structured = res.get("structured_response")
+
+    if structured:
+        return structured.model_dump()
+
+    return {"meals": []}
