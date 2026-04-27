@@ -81,13 +81,15 @@
 </div>
 
 <!-- INPUT -->
-<form method="POST" class="p-4 bg-white flex gap-2 shadow">
+<form method="POST" enctype="multipart/form-data" class="p-4 bg-white flex gap-2 shadow">
     {% csrf_token %}
+
+    <input type="file" name="image" class="border rounded-xl p-2">
 
     <input
         type="text"
         name="ingredients"
-        placeholder="Enter ingredients..."
+        placeholder="Or enter ingredients..."
         class="flex-1 border rounded-xl p-3"
     >
 

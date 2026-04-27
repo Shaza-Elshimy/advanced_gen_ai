@@ -73,3 +73,34 @@ def ask_chef(messages):
         return structured.model_dump(), res["messages"][-1]
 
     return {"meals": []}
+# ------------------------------------------------------------
+import base64
+
+vision_llm = ChatOpenAI(
+    model="gpt-4o-mini",
+    temperature=0,
+    api_key=api_key
+)
+
+def extract_ingredients_from_image(image_file):
+
+    image_bytes = image_file.read()
+    base64_image = base64.b64encode(image_bytes).decode("utf-8")
+
+    message = HumanMessage(
+        content=[
+            {
+                "type": "text",
+                "text": "Extract all food ingredients as a comma-separated list."
+            },
+            {
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{base64_image}"
+                }
+            }
+        ]
+    )
+
+    response = vision_llm.invoke([message])
+    return response.content
