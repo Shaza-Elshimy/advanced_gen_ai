@@ -6,6 +6,9 @@
 <body>
 
 <h2>Nutrition Assistant</h2>
+{% if response %}
+<p>{{response}}</p>
+{% endif %}
 
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
