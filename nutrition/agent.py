@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain.agents import create_agent
+from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
 
 load_dotenv()
