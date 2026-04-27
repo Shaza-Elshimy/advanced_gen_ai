@@ -2,19 +2,70 @@
 <html>
 <head>
     <title>Nutrition AI 🥗</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
 
-<h2>Nutrition Assistant</h2>
-{% if response %}
-<p>{{response}}</p>
-{% endif %}
+<body class="bg-green-50 h-screen flex flex-col overflow-hidden">
 
-<form method="POST" enctype="multipart/form-data">
+<!-- HEADER -->
+<div class="bg-white shadow-md p-4 text-center text-2xl font-bold text-green-700">
+    🥗 Nutrition AI Assistant
+</div>
+
+<!-- CHAT AREA -->
+<div class="flex-1 overflow-y-auto p-6 space-y-4">
+
+    {% for msg in history %}
+
+        {% if msg.role == "user" %}
+
+        <!-- USER -->
+        <div class="flex justify-end">
+            <div class="bg-green-600 text-white px-4 py-3 rounded-2xl max-w-xs shadow">
+                {{ msg.content }}
+            </div>
+        </div>
+
+        {% else %}
+
+        <!-- AI -->
+        <div class="flex justify-start">
+            <div class="bg-white border border-green-100 p-4 rounded-2xl shadow max-w-2xl">
+                🤖 {{ msg.content }}
+            </div>
+        </div>
+
+        {% endif %}
+
+    {% endfor %}
+
+</div>
+<!-- INPUT AREA -->
+<form method="POST" enctype="multipart/form-data"
+      class="bg-white p-4 shadow-inner flex items-center gap-3">
+
     {% csrf_token %}
-    <input type="text" name="meal" placeholder="Enter meal">
-    <input type="file" name="image">
-    <button>Send</button>
+
+    <!-- TEXT INPUT -->
+    <input
+        type="text"
+        name="meal"
+        placeholder="🍽️ What did you eat today?"
+        class="flex-1 border border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none rounded-xl p-3"
+    >
+
+    <!-- IMAGE UPLOAD -->
+    <label class="cursor-pointer bg-green-100 hover:bg-green-200 px-4 py-2 rounded-xl text-green-700">
+        📷
+        <input type="file" name="image" class="hidden">
+    </label>
+
+    <!-- BUTTON -->
+    <button
+        class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl font-semibold shadow-md transition">
+        Send
+    </button>
+
 </form>
 
 </body>
