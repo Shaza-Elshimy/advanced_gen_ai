@@ -1,6 +1,6 @@
 from django.shortcuts import render
+from langchain_core.messages import HumanMessage
 from .ai import ask_chef
-
 
 def home(request):
 
@@ -12,13 +12,15 @@ def home(request):
     if request.method == "POST":
         user_input = request.POST.get("ingredients")
 
+        messages = [HumanMessage(content=msg["content"]) for msg in history if msg["role"] == "user"]
+        messages.append(HumanMessage(content=user_input))
+
+        ai_response, ai_msg = ask_chef(messages)
+
         history.append({
             "role": "user",
             "content": user_input
         })
-
-
-        ai_response = ask_chef(user_input)
 
         history.append({
             "role": "assistant",

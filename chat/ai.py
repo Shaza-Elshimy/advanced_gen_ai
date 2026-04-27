@@ -55,12 +55,10 @@ agent = create_agent(
 )
 
 
-def ask_chef(user_input):
+def ask_chef(messages):
     res = agent.invoke(
         {
-            "messages": [
-                HumanMessage(content=user_input)
-            ]
+            "messages": messages 
         },
         config={
             "configurable": {
@@ -69,10 +67,9 @@ def ask_chef(user_input):
         }
     )
 
-
     structured = res.get("structured_response")
 
     if structured:
-        return structured.model_dump()
+        return structured.model_dump(), res["messages"][-1]
 
     return {"meals": []}
