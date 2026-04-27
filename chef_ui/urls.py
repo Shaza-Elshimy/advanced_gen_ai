@@ -16,8 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from nutrition.views import chat
 
 urlpatterns = [
     path("", include("chat.urls")),
+    path("nutrition/",chat),
     path("admin/", admin.site.urls),
 ]
