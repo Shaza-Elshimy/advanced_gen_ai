@@ -7,6 +7,10 @@ from langgraph.checkpoint.memory import InMemorySaver
 
 from tavily import TavilyClient
 from langchain.tools import tool
+
+from pydantic import BaseModel
+from typing import List
+
 import csv
 load_dotenv()
 
@@ -15,19 +19,35 @@ base_url="https://openrouter.ai/api/v1"
 api_key = os.getenv("OPENROUTER_API_KEY")
 tavily_key=os.getenv("TAVILY_KEY")
 
+class MealAnalysis(BaseModel):
+    meal: str
+    calories: str
+    summary: str
+    recommendations: List[str]
+    disclaimer: str
+
 system_prompt = """
 You are a Nutrition AI Assistant.
 
-You must:
-- Analyze food (text or image)
-- Estimate calories
-- Suggest healthy alternatives
-- Use tools when needed:
-  - search healthy places
-  - store analysis in CSV
+You MUST:
+1. Analyze food input (text or image-derived text)
+2. Estimate calories and nutrition
+3. Decide when to use tools:
+   - Use search tool for healthy restaurants or nutrition info
+   - Use storage tool to save meals and analysis
+4. Provide clear structured response:
+   - Meal Analysis
+   - Calories
+   - Summary
+   - Recommendations
 
-Always include disclaimer:
-"This is not medical or dietary advice.
+IMPORTANT:
+- You may call multiple tools in sequence
+- Always be structured and clear
+- Never skip tool usage if needed
+
+Always include this disclaimer:
+"This is not medical or dietary advice. Consult a qualified professional."
 """
 
 @tool
@@ -62,5 +82,6 @@ nutrition_agent = create_agent(
     llm,
     system_prompt=system_prompt,
     tools=[search_healthy_places,store_nutrition],
-    checkpointer=InMemorySaver()
+    checkpointer=InMemorySaver(),
+    response_format=MealAnalysis
 )

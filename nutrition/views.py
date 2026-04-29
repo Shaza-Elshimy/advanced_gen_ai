@@ -40,7 +40,7 @@ def chat(request):
 
         ai_response = res["messages"][-1].content
 
-        # 🔥 history خاص بالنيوترشن بس
+
         history.append({
             "role": "user",
             "content": meal
