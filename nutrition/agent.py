@@ -61,6 +61,6 @@ llm = ChatOpenAI(
 nutrition_agent = create_agent(
     llm,
     system_prompt=system_prompt,
-    tools=[search_healthy_places],
+    tools=[search_healthy_places,store_nutrition],
     checkpointer=InMemorySaver()
 )
