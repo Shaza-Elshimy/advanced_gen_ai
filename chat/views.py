@@ -21,7 +21,7 @@ def home(request):
         messages = [HumanMessage(content=msg["content"]) for msg in history if msg["role"] == "user"]
         messages.append(HumanMessage(content=user_input))
 
-        ai_response = ask_chef(messages)
+        ai_response,_ = ask_chef(messages)
 
         history.append({
             "role": "user",

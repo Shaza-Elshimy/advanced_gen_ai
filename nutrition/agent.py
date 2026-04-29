@@ -9,7 +9,10 @@ from tavily import TavilyClient
 from langchain.tools import tool
 import csv
 load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
+
+# api_key = os.getenv("OPENAI_API_KEY")
+base_url="https://openrouter.ai/api/v1"
+api_key = os.getenv("OPENROUTER_API_KEY")
 tavily_key=os.getenv("TAVILY_KEY")
 
 system_prompt = """
@@ -30,7 +33,7 @@ Always include disclaimer:
 @tool
 def search_healthy_places(meal: str, city: str) -> str:
     """Search for healthy restaurants based on meal and city"""
-    client = TavilyClient()
+    client = TavilyClient(api_key=tavily_key)
 
     query = f"healthy restaurants or meals for {meal} in {city}"
     result = client.search(query)
@@ -49,9 +52,10 @@ def store_nutrition(meal: str, calories: str, summary: str) -> str:
 
     return "Saved successfully"
 llm = ChatOpenAI(
-    model="gpt-4o-mini",
+    model="poolside/laguna-xs.2:free",
     temperature=0.7,
-    api_key=api_key
+    api_key=api_key,
+    base_url=base_url
 )
 
 nutrition_agent = create_agent(

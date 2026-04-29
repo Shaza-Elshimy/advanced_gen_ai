@@ -8,8 +8,9 @@ from typing import List
 
 load_dotenv()
 
-api_key = os.getenv("OPENAI_API_KEY")
-
+# api_key = os.getenv("OPENAI_API_KEY")
+base_url="https://openrouter.ai/api/v1"
+api_key = os.getenv("OPENROUTER_API_KEY")
 
 class Ingredient(BaseModel):
     name: str
@@ -43,9 +44,11 @@ Return ONLY structured output matching schema.
 
 
 llm = ChatOpenAI(
-    model="gpt-4o-mini",
+    # model="gpt-4o-mini",
+    model="poolside/laguna-xs.2:free",
     temperature=0.7,
-    api_key=api_key
+    api_key=api_key,
+    base_url=base_url
 )
 
 agent = create_agent(
@@ -77,9 +80,11 @@ def ask_chef(messages):
 import base64
 
 vision_llm = ChatOpenAI(
-    model="gpt-4o-mini",
+    # model="gpt-4o-mini",
+    model="poolside/laguna-xs.2:free",
     temperature=0,
-    api_key=api_key
+    api_key=api_key,
+    base_url=base_url
 )
 
 def extract_ingredients_from_image(image_file):
