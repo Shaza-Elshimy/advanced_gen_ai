@@ -17,9 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from nutrition.views import chat
+from study_agent.views import rag_page
 
 urlpatterns = [
     path("", include("chat.urls")),
     path("nutrition/",chat),
+    path("rag/",rag_page),
     path("admin/", admin.site.urls),
 ]

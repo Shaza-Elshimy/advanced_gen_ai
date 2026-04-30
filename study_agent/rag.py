@@ -78,14 +78,15 @@ Question:
 
 question="what is primary key?"
 
-docs = retriever.invoke(question)
-context ="\n".join([doc.page_content for doc in docs])
+def ask_rag(question):
+    docs = retriever.invoke(question)
+    context ="\n".join([doc.page_content for doc in docs])
 
-final_prompt = rag_prompt.format(
-    context=context,
-    question=question
-)
+    final_prompt = rag_prompt.format(
+        context=context,
+        question=question
+    )
 
-response = llm.invoke(final_prompt)
+    response = llm.invoke(final_prompt)
 
-print(response.content)
+    return response.content
