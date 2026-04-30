@@ -5,6 +5,15 @@ from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
 
+from langchain.agents.middleware import before_agent
+from langgraph.runtime import Runtime
+from langchain.agents import AgentState
+
+from langchain_core.messages import (
+    ToolMessage,
+    AIMessage,
+    RemoveMessage)
+
 from tavily import TavilyClient
 from langchain.tools import tool
 
@@ -14,9 +23,9 @@ from typing import List
 import csv
 load_dotenv()
 
-# api_key = os.getenv("OPENAI_API_KEY")
-base_url="https://openrouter.ai/api/v1"
-api_key = os.getenv("OPENROUTER_API_KEY")
+api_key = os.getenv("OPENAI_API_KEY")
+# base_url="https://openrouter.ai/api/v1"
+# api_key = os.getenv("OPENROUTER_API_KEY")
 tavily_key=os.getenv("TAVILY_KEY")
 
 class MealAnalysis(BaseModel):
@@ -71,11 +80,38 @@ def store_nutrition(meal: str, calories: str, summary: str) -> str:
         writer.writerow([meal, calories, summary])
 
     return "Saved successfully"
+
+
+
+@before_agent
+def trim_messages(
+    state: AgentState,
+    runtime: Runtime
+) -> AgentState:
+
+    """Remove tool messages and empty messages"""
+
+    messages_to_remove = [
+        msg
+        for msg in state["messages"]
+        if (
+            isinstance(msg, ToolMessage)
+            or str(msg.content).strip() == ""
+        )
+    ]
+
+    return {
+        "messages": [
+            RemoveMessage(id=msg.id)
+            for msg in messages_to_remove
+        ]
+    }
+
 llm = ChatOpenAI(
-    model="poolside/laguna-xs.2:free",
+    model="gpt-4o-mini",
     temperature=0.7,
     api_key=api_key,
-    base_url=base_url
+    # base_url=base_url
 )
 
 nutrition_agent = create_agent(
@@ -83,5 +119,6 @@ nutrition_agent = create_agent(
     system_prompt=system_prompt,
     tools=[search_healthy_places,store_nutrition],
     checkpointer=InMemorySaver(),
-    response_format=MealAnalysis
+    response_format=MealAnalysis,
+    middleware=[trim_messages],
 )
