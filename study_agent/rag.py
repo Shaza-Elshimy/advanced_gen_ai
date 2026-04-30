@@ -76,11 +76,19 @@ Question:
 """
 )
 
-question="what is primary key?"
+# question="what is primary key?"
 
-def ask_rag(question):
+from langchain.tools import tool
+
+@tool
+def rag_tool(question: str):
+    """
+    Use this tool to answer questions about MySQL course PDFs.
+    It retrieves relevant context from the vector database and answers based on it.
+    """
+
     docs = retriever.invoke(question)
-    context ="\n".join([doc.page_content for doc in docs])
+    context = "\n".join([doc.page_content for doc in docs])
 
     final_prompt = rag_prompt.format(
         context=context,
@@ -88,5 +96,53 @@ def ask_rag(question):
     )
 
     response = llm.invoke(final_prompt)
-
     return response.content
+
+
+from langchain_core.tools import tool
+from tavily import TavilyClient
+import os
+
+tavily_client = TavilyClient(api_key=os.getenv("TAVILY_KEY"))
+
+
+@tool
+def web_search(query: str) -> str:
+    """Search the internet for any query using Tavily."""
+    
+    result = tavily_client.search(query)
+    return str(result)
+
+from langchain.agents import create_agent
+from langchain_core.messages import HumanMessage
+from langgraph.checkpoint.memory import InMemorySaver
+
+system_prompt = """
+You are a Study Assistant AI Agent.
+
+You must decide when to use tools.
+
+You have:
+- rag_tool: for questions about MySQL course PDFs
+
+Always use the tool when needed before answering.
+"""
+
+agent = create_agent(
+    llm,
+    system_prompt=system_prompt,
+    tools=[rag_tool,web_search],
+    checkpointer=InMemorySaver()
+)
+
+result = agent.invoke(
+    {
+        "messages": [
+            HumanMessage(content="what is primary key?")
+        ]
+    },
+    config={"configurable":{"thread_id":"1"}}
+)
+
+# print(result["messages"][-1].content)
+

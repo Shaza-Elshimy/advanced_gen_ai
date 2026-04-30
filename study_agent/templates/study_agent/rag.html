@@ -14,6 +14,18 @@
 
   <!-- chat box -->
   <div id="chat" class="h-96 overflow-y-auto border p-3 rounded-lg mb-4 bg-gray-50">
+    {% for item in history %}
+    <div class="text-right mb-2">
+      <div class="bg-blue-100 p-2 rounded-lg inline-block">
+        ❓ {{ item.question }}
+      </div>
+    </div>
+    <div class="text-left mb-4">
+      <div class="bg-gray-200 p-2 rounded-lg inline-block">
+        🤖 {{ item.answer }}
+      </div>
+    </div>
+    {% endfor %}
   </div>
 
   <!-- input -->
@@ -34,7 +46,7 @@
 async function ask() {
     let q = document.getElementById("q").value;
 
-    let res = await fetch(`/rag?q=${q}`);
+    let res = await fetch(`/rag/chat/?q=${q}`);
     let data = await res.json();
 
     let chat = document.getElementById("chat");
