@@ -38,4 +38,15 @@ vectorstore =Chroma.from_documents(
     embedding=embedding,
     persist_directory="chroma_db"
 )
-# print(vectorstore.similarity_search("what is primary key"))
+# print(vectorstore.similarity_search("what is primary key?"))
+
+retriever =vectorstore.as_retriever(
+    search_type="mmr",
+    search_kwargs={"k":3}
+)
+docs = retriever.invoke("what is primary key?")
+
+# print(docs)
+context ="\n".join([doc.page_content for doc in docs])
+
+print(context)
