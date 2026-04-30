@@ -117,21 +117,55 @@ from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
 
+
+from study_agent.models import Course
+
+@tool
+def search_courses(query: str) -> str:
+    """
+    Search for courses in the local database.
+    """
+
+    courses = Course.objects.filter(title__icontains=query)
+
+    if not courses.exists():
+        return "No courses found."
+
+    result = []
+
+    for course in courses:
+        result.append(
+            f"""
+            Title: {course.title}
+            Instructor: {course.instructor}
+            Duration: {course.duration}
+            Level: {course.level}
+            """
+        )
+
+    return "\n".join(result)
+
 system_prompt = """
-You are a Study Assistant AI Agent.
+YYou are a Study Assistant AI Agent.
 
-You must decide when to use tools.
+You have access to these tools:
 
-You have:
-- rag_tool: for questions about MySQL course PDFs
+1. rag_tool
+- Use it for questions about MySQL course PDFs.
 
-Always use the tool when needed before answering.
+2. web_search
+- Use it for recent or online information.
+
+3. search_courses
+- Use it when the user asks about available courses.
+
+Choose the correct tool automatically before answering.
 """
 
 agent = create_agent(
     llm,
     system_prompt=system_prompt,
-    tools=[rag_tool,web_search],
+    tools=[rag_tool,web_search,search_courses],
     checkpointer=InMemorySaver()
 )
 
