@@ -44,9 +44,48 @@ retriever =vectorstore.as_retriever(
     search_type="mmr",
     search_kwargs={"k":3}
 )
-docs = retriever.invoke("what is primary key?")
+
+# docs = retriever.invoke("what is primary key?")
 
 # print(docs)
+# context ="\n".join([doc.page_content for doc in docs])
+
+# print(context)
+
+from langchain_openai import ChatOpenAI
+llm=ChatOpenAI(
+    model="gpt-4o-mini",
+    temperature=0
+)
+
+from langchain_core.prompts import PromptTemplate
+
+rag_prompt = PromptTemplate(
+    input_variables=["context", "question"],
+    template="""
+You are a helpful assistant.
+Answer ONLY using the context below.
+
+If you don't find the answer, say "I don't know".
+
+Context:
+{context}
+
+Question:
+{question}
+"""
+)
+
+question="what is primary key?"
+
+docs = retriever.invoke(question)
 context ="\n".join([doc.page_content for doc in docs])
 
-print(context)
+final_prompt = rag_prompt.format(
+    context=context,
+    question=question
+)
+
+response = llm.invoke(final_prompt)
+
+print(response.content)
